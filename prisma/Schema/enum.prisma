@@ -1,0 +1,17 @@
+enum Role {
+  STUDENT
+  INSTRUCTOR
+    SUPER_ADMIN
+  ADMIN
+}
+enum userStatus {
+    ACTIVE
+    INACTIVE
+    DELETED
+    BLOCKED
+}
+
+enum GENDER {
+    MALE
+    Female
+}

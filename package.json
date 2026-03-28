@@ -1,0 +1,40 @@
+{
+  "name": "prisma-learing-",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node dist/server.js",
+    "build": "tsc -p .",
+    "dev": "tsx watch src/server.ts",
+    "lint": "eslint ./src",
+    "generate": "prisma generate",
+    "migrate": "prisma migrate dev",
+    "studio": "prisma studio"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.5.0",
+    "@types/pg": "^8.18.0",
+    "eslint": "^10.0.3",
+    "globals": "^17.4.0",
+    "prisma": "^7.6.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.57.1"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.5.0",
+    "@prisma/client": "^7.6.0",
+    "better-auth": "^1.5.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "http-status": "^2.1.0",
+    "remeda": "^2.33.6"
+  }
+}
