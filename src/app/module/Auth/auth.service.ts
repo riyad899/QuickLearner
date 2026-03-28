@@ -5,6 +5,7 @@ import { IncomingHttpHeaders } from "http";
 import { Prisma, userStatus } from "@prisma/client";
 import { prisma } from "../../lib/prisma.js";
 
+
 interface IRegisteStudentPayload {
   name: string;
   email: string;
@@ -13,6 +14,9 @@ interface IRegisteStudentPayload {
   address?: string;
   contact?: string;
 };
+
+
+
 
 const register = async (payload:IRegisteStudentPayload, requestHeaders: IncomingHttpHeaders) => {
     const { name, email, password, age, address, contact } = payload;
@@ -83,6 +87,14 @@ interface ILoginUserPayload {
   password: string;
 }
 
+interface IUpdateStudentPayload {
+  name?: string;
+  email?: string;
+  age?: number;
+  address?: string;
+  contact?: string;
+}
+
 
     const LoginUser = async (payload :ILoginUserPayload)=>{
       const { email, password } = payload;
@@ -105,7 +117,76 @@ interface ILoginUserPayload {
 
       return data;
     }
+
+const updateStudent = async (id: number, payload: IUpdateStudentPayload) => {
+  const studentExist = await prisma.student.findUnique({
+    where: { id },
+    include: {
+      user: {
+        select: {
+          id: true,
+        },
+      },
+    },
+  });
+
+  if (!studentExist) {
+    throw new Error("Student not found");
+  }
+
+  if (studentExist.isDeleted) {
+    throw new Error("Cannot update a deleted student");
+  }
+
+  if (payload.email) {
+    const emailAlreadyInUse = await prisma.student.findFirst({
+      where: {
+        email: payload.email,
+        id: {
+          not: id,
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (emailAlreadyInUse) {
+      throw new Error("Student email already exists");
+    }
+  }
+
+  const updatedStudent = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+    const student = await tx.student.update({
+      where: { id },
+      data: {
+        name: payload.name,
+        email: payload.email,
+        age: payload.age,
+        address: payload.address?.trim(),
+        contact: payload.contact,
+      },
+    });
+
+    if (studentExist.user?.id) {
+      await tx.user.update({
+        where: {
+          id: studentExist.user.id,
+        },
+        data: {
+          name: payload.name,
+          email: payload.email,
+        },
+      });
+    }
+
+    return student;
+  });
+
+  return updatedStudent;
+};
 export const authService = {
   register,
   LoginUser,
+  updateStudent,
 };

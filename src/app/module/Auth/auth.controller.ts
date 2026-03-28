@@ -42,7 +42,25 @@ const LoginUser = catchAsync(async (req, res) => {
 });
 });
 
+const updateStudent = catchAsync(async (req, res) => {
+  const id = Number(req.params.id);
+
+  if (Number.isNaN(id)) {
+    throw new Error("Invalid student id");
+  }
+
+  const data = await authService.updateStudent(id, req.body);
+
+  sendResponse(res, {
+    httpStatus: status.OK,
+    success: true,
+    message: "Student updated successfully",
+    data,
+  });
+});
+
 export const AuthController = {
   register,
     LoginUser,
+    updateStudent,
 };
