@@ -1,9 +1,9 @@
 
-import { auth } from "../../lib/auth";
+import { auth } from "../../lib/auth.js";
 import { fromNodeHeaders } from "better-auth/node";
 import { IncomingHttpHeaders } from "http";
-import { userStatus } from "../../../generated/prisma-client/enums";
-import { prisma } from "../../lib/prisma";
+import { Prisma, userStatus } from "@prisma/client";
+import { prisma } from "../../lib/prisma.js";
 
 interface IRegisteStudentPayload {
   name: string;
@@ -46,7 +46,7 @@ const register = async (payload:IRegisteStudentPayload, requestHeaders: Incoming
      }
 
      try {
-      const student = await prisma.$transaction(async (tx) => {
+      const student = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         const studentData = {
           name,
           email,

@@ -1,8 +1,8 @@
 
-import { Role, Speciality } from '../../../generated/prisma-client/client';
-import { auth } from '../../lib/auth';
-import { prisma } from '../../lib/prisma';
-import { ICreateInstructorPayload } from './instructor.interface';
+import { Role, type Speciality } from '@prisma/client';
+import { auth } from '../../lib/auth.js';
+import { prisma } from '../../lib/prisma.js';
+import { ICreateInstructorPayload } from './instructor.interface.js';
 
 
 const createInstructor = async (payload :ICreateInstructorPayload ) => {
@@ -45,7 +45,7 @@ const createInstructor = async (payload :ICreateInstructorPayload ) => {
    } as any) as any;
 
    try{
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
         const instructorData = await tx.instructor.create({
             data: {
                             userID: authInstructor.user.id,
