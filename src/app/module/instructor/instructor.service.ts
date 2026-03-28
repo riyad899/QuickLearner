@@ -42,7 +42,7 @@ const createInstructor = async (payload :ICreateInstructorPayload ) => {
        role: Role.INSTRUCTOR,
        needsPasswordReset: true
    }
-   });
+   } as any) as any;
 
    try{
     const result = await prisma.$transaction(async (tx) => {
