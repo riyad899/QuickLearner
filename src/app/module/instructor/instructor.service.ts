@@ -119,7 +119,55 @@ const createInstructor = async (payload :ICreateInstructorPayload ) => {
    }
 };
 
+
+ const getAllInstructor = async () => {
+    const instructor = await prisma.instructor.findMany({
+        include: {
+            user: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    role: true,
+                    status: true,
+                    emailVerified: true,
+                    createdAt: true,
+                    updatedAt: true,
+                }
+            },
+            speciality: true,
+            specialities: {
+                include: {
+                    speciality: true,
+                }
+            },
+            courses: true,
+        }
+    });
+
+    return {
+        total: instructor.length,
+        data: instructor,
+    };
+}
+
+// const deleteInstructor = async (id:string) => {
+//     const instructor = await prisma.instructor.delete({
+//         where: {
+//             id
+//         }
+//     })
+//     return instructor;
+// }
+
+
+
+
+
+
+
 export const InstructorService = {
-    createInstructor
+    createInstructor,
+    getAllInstructor
 };
 

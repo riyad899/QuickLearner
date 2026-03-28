@@ -15,6 +15,17 @@ const createInstructor = catchAsync(async (req:Request , res:Response) => {
     })
 });
 
+const getAllInstructor = catchAsync(async (req:Request , res:Response) => {
+    const result = await InstructorService.getAllInstructor();
+    sendResponse(res, {
+        httpStatus: status.OK,
+        success: true,
+        message: "Instructor retrieved successfully",
+        data: result
+    })
+});
+
 export const InstructorController = {
     createInstructor
+        ,getAllInstructor
 }
