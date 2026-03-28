@@ -11,10 +11,28 @@ export interface ICreateInstructorPayload{
     instuctorFee ?: number;
     exprerince?: number;
     gender?: string;
+    ratingCount?: number;
     instructorBio?: string;
 
 }
  specialityId: string[];
+
+}
+
+export interface IUpdateInstructorPayload{
+    instructor : {
+    name: string;
+    email: string;
+    age?: number;
+    profilePhoto?: string;
+    address?: string;
+    contact?: string;
+    instuctorFee ?: number;
+    exprerince?: number;
+  ratingCount?: number;
+    instructorBio?: string;
+}
+  specialityId?: string[];
 
 }
 
