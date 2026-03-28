@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { SpacialityController } from "./spaciality.controller";
+import { SpacialityController } from "./spaciality.controller.js";
 
 
 const router = Router();

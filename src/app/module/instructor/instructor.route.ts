@@ -1,10 +1,10 @@
 import { Router } from "express";
-import app from "../../../app";
-import { InstructorController } from "./instructor.controller";
+import { InstructorController } from "./instructor.controller.js";
 
 
 const router = Router();
 
-router.post("/create-doctor",InstructorController.createInstructor);
+router.post("/create-instructor",InstructorController.createInstructor);
+router.get("/get-all",InstructorController.getAllInstructor);
 
 export const InstructorRoute = router;

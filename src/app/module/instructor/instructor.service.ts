@@ -1,8 +1,8 @@
 
-import { Role, Speciality } from '../../../generated/prisma-client/client';
-import { auth } from '../../lib/auth';
-import { prisma } from '../../lib/prisma';
-import { ICreateInstructorPayload } from './instructor.interface';
+import { Role, type Speciality } from '@prisma/client';
+import { auth } from '../../lib/auth.js';
+import { prisma } from '../../lib/prisma.js';
+import { ICreateInstructorPayload } from './instructor.interface.js';
 
 
 const createInstructor = async (payload :ICreateInstructorPayload ) => {
@@ -45,7 +45,7 @@ const createInstructor = async (payload :ICreateInstructorPayload ) => {
    } as any) as any;
 
    try{
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
         const instructorData = await tx.instructor.create({
             data: {
                             userID: authInstructor.user.id,
@@ -119,7 +119,55 @@ const createInstructor = async (payload :ICreateInstructorPayload ) => {
    }
 };
 
+
+ const getAllInstructor = async () => {
+    const instructor = await prisma.instructor.findMany({
+        include: {
+            user: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    role: true,
+                    status: true,
+                    emailVerified: true,
+                    createdAt: true,
+                    updatedAt: true,
+                }
+            },
+            speciality: true,
+            specialities: {
+                include: {
+                    speciality: true,
+                }
+            },
+            courses: true,
+        }
+    });
+
+    return {
+        total: instructor.length,
+        data: instructor,
+    };
+}
+
+// const deleteInstructor = async (id:string) => {
+//     const instructor = await prisma.instructor.delete({
+//         where: {
+//             id
+//         }
+//     })
+//     return instructor;
+// }
+
+
+
+
+
+
+
 export const InstructorService = {
-    createInstructor
+    createInstructor,
+    getAllInstructor
 };
 

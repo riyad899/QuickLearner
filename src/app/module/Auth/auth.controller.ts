@@ -1,8 +1,8 @@
 
 import status from "http-status";
-import catchAsync from "../../shared/catchAsync";
-import { sendResponse } from "../../shared/sendResponse";
-import { authService } from "./auth.service";
+import catchAsync from "../../shared/catchAsync.js";
+import { sendResponse } from "../../shared/sendResponse.js";
+import { authService } from "./auth.service.js";
 
 const register = catchAsync(async (req, res) => {
   const { name, email, password, age, address, contact } = req.body;
