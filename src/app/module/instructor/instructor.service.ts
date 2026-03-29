@@ -3,11 +3,13 @@ import { Role, type Speciality } from '@prisma/client';
 import { auth } from '../../lib/auth.js';
 import { prisma } from '../../lib/prisma.js';
 import { ICreateInstructorPayload, IUpdateInstructorPayload } from './instructor.interface.js';
+import status from 'http-status';
+import AppError from '../../errorHelpers/appError.js';
 
 
 const createInstructor = async (payload :ICreateInstructorPayload ) => {
     if (!payload.specialityId?.length) {
-     throw new Error("At least one speciality is required");
+    throw new AppError("At least one speciality is required", status.BAD_REQUEST);
     }
 
    const speciality : Speciality[] = [];
@@ -19,7 +21,7 @@ const createInstructor = async (payload :ICreateInstructorPayload ) => {
         }
     });
     if (!specialityData) {
-        throw new Error(`Speciality with id ${id} not found`);
+        throw new AppError(`Speciality with id ${id} not found`, status.NOT_FOUND);
     }
 
     speciality.push(specialityData);
@@ -33,7 +35,7 @@ const createInstructor = async (payload :ICreateInstructorPayload ) => {
    });
 
    if (userExist) {
-    throw new Error("User with this email already exist");
+    throw new AppError("User with this email already exist", status.CONFLICT);
    }
 
     const authInstructor = await auth.api.signUpEmail({
@@ -117,7 +119,13 @@ const createInstructor = async (payload :ICreateInstructorPayload ) => {
    }catch(error) {
        console.log("Transection Error : " + error)
                 await prisma.user.delete({ where: { id: authInstructor.user.id } }).catch(() => undefined);
-    throw error;
+    if (error instanceof AppError) {
+        throw new AppError(error.message, error.statusCode, error.stack);
+    }
+    if (error instanceof Error) {
+        throw new AppError(error.message, status.INTERNAL_SERVER_ERROR);
+    }
+    throw new AppError("Failed to create instructor", status.INTERNAL_SERVER_ERROR);
    }
 };
 
@@ -198,7 +206,7 @@ const getInstructorById = async (id:number) => {
     });
 
     if (!instructor) {
-        throw new Error("Instructor not found");
+        throw new AppError("Instructor not found", status.NOT_FOUND);
     }
 
     return instructor;
@@ -211,11 +219,11 @@ const deleteInstructor = async (id:number) => {
     });
 
     if (!instructorExist) {
-        throw new Error("Instructor not found");
+        throw new AppError("Instructor not found", status.NOT_FOUND);
     }
 
     if (instructorExist.isDeleted) {
-        throw new Error("Instructor already deleted");
+        throw new AppError("Instructor already deleted", status.BAD_REQUEST);
     }
 
     const instructor = await prisma.instructor.update({
@@ -245,11 +253,11 @@ const updateInstructor = async (id:number, payload: IUpdateInstructorPayload) =>
     });
 
     if (!instructorExist) {
-        throw new Error("Instructor not found");
+        throw new AppError("Instructor not found", status.NOT_FOUND);
     }
 
     if (instructorExist.isDeleted) {
-        throw new Error("Cannot update a deleted instructor");
+        throw new AppError("Cannot update a deleted instructor", status.BAD_REQUEST);
     }
 
     const speciality: Speciality[] = [];
@@ -258,7 +266,7 @@ const updateInstructor = async (id:number, payload: IUpdateInstructorPayload) =>
 
     if (specialityIds) {
         if (specialityIds.length === 0) {
-            throw new Error("If specialityId is provided, it cannot be empty");
+            throw new AppError("If specialityId is provided, it cannot be empty", status.BAD_REQUEST);
         }
 
         for (const specialityId of specialityIds) {
@@ -269,7 +277,7 @@ const updateInstructor = async (id:number, payload: IUpdateInstructorPayload) =>
             });
 
             if (!specialityData) {
-                throw new Error(`Speciality with id ${specialityId} not found`);
+                throw new AppError(`Speciality with id ${specialityId} not found`, status.NOT_FOUND);
             }
 
             speciality.push(specialityData);

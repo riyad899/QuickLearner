@@ -3,6 +3,7 @@ import catchAsync from "../../shared/catchAsync.js";
 import { InstructorService } from "./instructor.service.js";
 import { sendResponse } from "../../shared/sendResponse.js";
 import status from "http-status";
+import AppError from "../../errorHelpers/appError.js";
 
 const createInstructor = catchAsync(async (req:Request , res:Response) => {
     const payload = req.body;
@@ -28,7 +29,7 @@ const getInstructorById = catchAsync(async (req:Request , res:Response) => {
     const id = Number(req.params.id);
 
     if (Number.isNaN(id)) {
-        throw new Error("Invalid instructor id");
+        throw new AppError("Invalid instructor id", status.BAD_REQUEST);
     }
 
     const result = await InstructorService.getInstructorById(id);
@@ -44,7 +45,7 @@ const deleteInstructor = catchAsync(async (req:Request , res:Response) => {
     const id = Number(req.params.id);
 
     if (Number.isNaN(id)) {
-        throw new Error("Invalid instructor id");
+        throw new AppError("Invalid instructor id", status.BAD_REQUEST);
     }
 
     const result = await InstructorService.deleteInstructor(id);
@@ -60,7 +61,7 @@ const updateInstructor = catchAsync(async (req:Request , res:Response) => {
     const id = Number(req.params.id);
 
     if (Number.isNaN(id)) {
-        throw new Error("Invalid instructor id");
+        throw new AppError("Invalid instructor id", status.BAD_REQUEST);
     }
 
     const payload = req.body;

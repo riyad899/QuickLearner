@@ -4,6 +4,8 @@ import { fromNodeHeaders } from "better-auth/node";
 import { IncomingHttpHeaders } from "http";
 import { Prisma, userStatus } from "@prisma/client";
 import { prisma } from "../../lib/prisma.js";
+import status from "http-status";
+import AppError from "../../errorHelpers/appError.js";
 
 
 interface IRegisteStudentPayload {
@@ -22,11 +24,11 @@ const register = async (payload:IRegisteStudentPayload, requestHeaders: Incoming
     const { name, email, password, age, address, contact } = payload;
 
     if (age !== undefined && (!Number.isInteger(age) || age <= 0)) {
-      throw new Error("Valid age is required to create student profile");
+      throw new AppError("Valid age is required to create student profile", status.BAD_REQUEST);
     }
 
     if (address !== undefined && !address.trim()) {
-      throw new Error("Address cannot be empty");
+      throw new AppError("Address cannot be empty", status.BAD_REQUEST);
     }
 
     const response = await auth.api.signUpEmail({
@@ -46,7 +48,7 @@ const register = async (payload:IRegisteStudentPayload, requestHeaders: Incoming
 
     const data = await response.json();
      if(!data?.user) {
-      throw new Error("Failed to create user");
+      throw new AppError("Failed to create user", status.INTERNAL_SERVER_ERROR);
      }
 
      try {
@@ -78,7 +80,7 @@ const register = async (payload:IRegisteStudentPayload, requestHeaders: Incoming
       };
      } catch {
       await prisma.user.delete({ where: { id: data.user.id } }).catch(() => undefined);
-      throw new Error("Failed to create student profile");
+      throw new AppError("Failed to create student profile", status.INTERNAL_SERVER_ERROR);
      }
     };
 
@@ -106,13 +108,13 @@ interface IUpdateStudentPayload {
       });
 
       if(!data?.user) {
-        throw new Error("Failed to login user");
+        throw new AppError("Failed to login user", status.UNAUTHORIZED);
        }
        if (data.user.status === userStatus.INACTIVE){
-        throw new Error("User account is inactive. Please contact support.");
+        throw new AppError("User account is inactive. Please contact support.", status.FORBIDDEN);
        }
       if (data.user.status === userStatus.DELETED || data.user.isdeleted) {
-        throw new Error("User account is deleted. Please contact support.");
+        throw new AppError("User account is deleted. Please contact support.", status.FORBIDDEN);
        }
 
       return data;
@@ -131,11 +133,11 @@ const updateStudent = async (id: number, payload: IUpdateStudentPayload) => {
   });
 
   if (!studentExist) {
-    throw new Error("Student not found");
+    throw new AppError("Student not found", status.NOT_FOUND);
   }
 
   if (studentExist.isDeleted) {
-    throw new Error("Cannot update a deleted student");
+    throw new AppError("Cannot update a deleted student", status.BAD_REQUEST);
   }
 
   if (payload.email) {
@@ -152,7 +154,7 @@ const updateStudent = async (id: number, payload: IUpdateStudentPayload) => {
     });
 
     if (emailAlreadyInUse) {
-      throw new Error("Student email already exists");
+      throw new AppError("Student email already exists", status.CONFLICT);
     }
   }
 

@@ -3,6 +3,7 @@ import status from "http-status";
 import catchAsync from "../../shared/catchAsync.js";
 import { sendResponse } from "../../shared/sendResponse.js";
 import { authService } from "./auth.service.js";
+import AppError from "../../errorHelpers/appError.js";
 
 const register = catchAsync(async (req, res) => {
   const { name, email, password, age, address, contact } = req.body;
@@ -46,7 +47,7 @@ const updateStudent = catchAsync(async (req, res) => {
   const id = Number(req.params.id);
 
   if (Number.isNaN(id)) {
-    throw new Error("Invalid student id");
+    throw new AppError("Invalid student id", status.BAD_REQUEST);
   }
 
   const data = await authService.updateStudent(id, req.body);

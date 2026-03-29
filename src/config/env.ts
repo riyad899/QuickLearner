@@ -1,4 +1,7 @@
 import dotenv from "dotenv";
+import AppError from "../app/errorHelpers/appError";
+import { stat } from "node:fs";
+import status from "http-status";
 
 // NODE = "development"
 // # Environment variables declared in this file are NOT automatically loaded by Prisma.
@@ -31,7 +34,7 @@ const LoadEnvVarialbes = (): EnvConfig => {
     ];
     requiredEnvVars.forEach((varName) => {
         if (!process.env[varName]) {
-            throw new Error(`Missing required environment variable: ${varName}`);
+            throw new AppError(`Missing required environment variable: ${varName}`, status.INTERNAL_SERVER_ERROR);
         }
     });
 
