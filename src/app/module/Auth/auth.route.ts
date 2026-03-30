@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { AuthController } from "./auth.controller.js";
 import { validateZodSchema } from "../../../middleware/validateReq.js";
+import { checkAuth } from "../../../middleware/checkAuth.js";
 import {
 	loginUserZodSchema,
 	registerStudentZodSchema,
@@ -12,5 +13,7 @@ const router = Router();
 router.post("/regsiter", validateZodSchema(registerStudentZodSchema), AuthController.register);
 router.post("/login", validateZodSchema(loginUserZodSchema), AuthController.LoginUser);
 router.patch("/student/:id", validateZodSchema(updateStudentZodSchema), AuthController.updateStudent);
-
+router.get("/me", checkAuth(), AuthController.getMe);
+router.post("/refresh-token", AuthController.getNewToken);
+router.post("/change-password", AuthController.changePassword);
 export const AuthRoute = router;
