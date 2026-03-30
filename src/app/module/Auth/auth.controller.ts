@@ -6,6 +6,7 @@ import AppError from "../../errorHelpers/appError.js";
 import { tokenUtils } from "../../utils/token.js";
 import { Request, Response } from "express";
 import { get } from "http";
+import { CookieUtils } from "../../utils/cookie.js";
 
 const register = catchAsync(async (req, res) => {
   const { name, email, password, age, address, contact } = req.body;
@@ -143,6 +144,36 @@ const changePassword = catchAsync(
     }
 )
 
+const logoutUser = catchAsync(
+    async (req: Request, res: Response) => {
+        const betterAuthSessionToken = req.cookies["better-auth.session_token"];
+        const result = await authService.logoutUser(betterAuthSessionToken);
+        CookieUtils.clearCookie(res, 'accessToken', {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+        });
+        CookieUtils.clearCookie(res, 'refreshToken', {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+        });
+        CookieUtils.clearCookie(res, 'better-auth.session_token', {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+        });
+
+        sendResponse(res, {
+            httpStatus: status.OK,
+            success: true,
+            message: "User logged out successfully",
+            data: result,
+        });
+    }
+)
+
+
 
 export const AuthController = {
   register,
@@ -151,4 +182,5 @@ export const AuthController = {
   getMe,
   getNewToken,
   changePassword,
+  logoutUser,
 };

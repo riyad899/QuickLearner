@@ -16,4 +16,5 @@ router.patch("/student/:id", validateZodSchema(updateStudentZodSchema), AuthCont
 router.get("/me", checkAuth(), AuthController.getMe);
 router.post("/refresh-token", AuthController.getNewToken);
 router.post("/change-password", AuthController.changePassword);
+router.post("/logout", AuthController.logoutUser);
 export const AuthRoute = router;
