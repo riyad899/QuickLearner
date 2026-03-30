@@ -2,6 +2,8 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma.js";
 import { userStatus, Role } from "@prisma/client";
+import { envVars } from "../../config/env.js";
+import { bearer } from "better-auth/plugins";
 
 
 export const auth = betterAuth({
@@ -41,4 +43,16 @@ export const auth = betterAuth({
 
       },
     },
+    plugins: [
+      bearer()
+    ],
+       session: {
+        expiresIn: 60 * 60 * 60 * 24, // 1 day in seconds
+        updateAge: 60 * 60 * 60 * 24, // 1 day in seconds
+        cookieCache: {
+          enabled: false,
+            maxAge: 60 * 60 * 60 * 24, // 1 day in seconds
+        }
+    },
+
 });

@@ -6,6 +6,8 @@ import { Prisma, userStatus } from "@prisma/client";
 import { prisma } from "../../lib/prisma.js";
 import status from "http-status";
 import AppError from "../../errorHelpers/appError.js";
+import { tokenUtils } from "../../utils/token.js";
+import { IchanegPasswordPayload } from "./auth.interface.js";
 
 
 interface IRegisteStudentPayload {
@@ -41,10 +43,7 @@ const register = async (payload:IRegisteStudentPayload, requestHeaders: Incoming
       asResponse: true,
     } as any) as Response;
 
-    const setCookies =
-      typeof (response.headers as any).getSetCookie === "function"
-        ? (response.headers as any).getSetCookie()
-        : (response.headers.get("set-cookie") ? [response.headers.get("set-cookie") as string] : []);
+
 
     const data = await response.json();
      if(!data?.user) {
@@ -70,13 +69,33 @@ const register = async (payload:IRegisteStudentPayload, requestHeaders: Incoming
           data: studentData,
         });
       });
+      const accessToken = tokenUtils.getAccessToken(
+        { userId: data.user.id,
+           email: data.user.email,
+           role: data.user.role,
+           status: data.user.status,
+           isDeleted: data.user.isdeleted,
+           emailVerified: data.user.emailVerified
 
+          }
+      );
+        const refreshToken = tokenUtils.getRefreshToken(
+          { userId: data.user.id,
+             email: data.user.email,
+             role: data.user.role,
+             status: data.user.status,
+             isDeleted: data.user.isdeleted,
+             emailVerified: data.user.emailVerified
+
+            }
+        );
       return {
         data: {
           ...data,
           student,
+          accessToken,
+          refreshToken
         },
-        setCookies,
       };
      } catch {
       await prisma.user.delete({ where: { id: data.user.id } }).catch(() => undefined);
@@ -117,7 +136,32 @@ interface IUpdateStudentPayload {
         throw new AppError("User account is deleted. Please contact support.", status.FORBIDDEN);
        }
 
-      return data;
+      const accessToken = tokenUtils.getAccessToken(
+        { userId: data.user.id,
+           email: data.user.email,
+           role: data.user.role,
+           status: data.user.status,
+           isDeleted: data.user.isdeleted,
+           emailVerified: data.user.emailVerified
+
+          }
+      );
+        const refreshToken = tokenUtils.getRefreshToken(
+          { userId: data.user.id,
+             email: data.user.email,
+             role: data.user.role,
+             status: data.user.status,
+             isDeleted: data.user.isdeleted,
+             emailVerified: data.user.emailVerified
+
+            }
+        );
+
+      return {
+        ...data,
+        accessToken,
+        refreshToken
+      };
     }
 
 const updateStudent = async (id: number, payload: IUpdateStudentPayload) => {
@@ -187,8 +231,75 @@ const updateStudent = async (id: number, payload: IUpdateStudentPayload) => {
 
   return updatedStudent;
 };
+
+
+const changePassword = async (payload: IchanegPasswordPayload, sessionToken: string) => {
+    const session = await auth.api.getSession({
+        headers : new Headers({
+            Authorization : `Bearer ${sessionToken}`
+        })
+    })
+
+    if (!session) {
+      throw new AppError("Invalid session token", status.UNAUTHORIZED);
+    }
+
+    const { currentPassword, newPassword } = payload;
+
+    const result = await auth.api.changePassword({
+        body :{
+            currentPassword,
+            newPassword,
+            revokeOtherSessions: true,
+        },
+        headers : new Headers({
+            Authorization : `Bearer ${sessionToken}`
+        })
+    })
+
+    if (session.user.needsPasswordReset) {
+        await prisma.user.update({
+            where: {
+                id: session.user.id,
+            },
+            data: {
+          needsPasswordReset: false,
+            }
+        })
+    }
+
+    const accessToken = tokenUtils.getAccessToken({
+        userId: session.user.id,
+        role: session.user.role,
+        name: session.user.name,
+        email: session.user.email,
+        status: session.user.status,
+        isDeleted: session.user.isdeleted,
+        emailVerified: session.user.emailVerified,
+    });
+
+    const refreshToken = tokenUtils.getRefreshToken({
+        userId: session.user.id,
+        role: session.user.role,
+        name: session.user.name,
+        email: session.user.email,
+        status: session.user.status,
+        isDeleted: session.user.isdeleted,
+        emailVerified: session.user.emailVerified,
+    });
+
+
+    return {
+        ...result,
+        accessToken,
+        refreshToken,
+    }
+}
+
+
 export const authService = {
   register,
   LoginUser,
   updateStudent,
+  changePassword,
 };

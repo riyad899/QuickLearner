@@ -1,4 +1,3 @@
-import { status } from 'http-status';
 export interface IError {
    path: string;
    message: string;

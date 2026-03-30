@@ -1,13 +1,13 @@
-
 import status from "http-status";
 import catchAsync from "../../shared/catchAsync.js";
 import { sendResponse } from "../../shared/sendResponse.js";
 import { authService } from "./auth.service.js";
 import AppError from "../../errorHelpers/appError.js";
+import { tokenUtils } from "../../utils/token.js";
 
 const register = catchAsync(async (req, res) => {
   const { name, email, password, age, address, contact } = req.body;
-  const payload = await authService.register(
+  const result = await authService.register(
     {
       name,
       email,
@@ -18,29 +18,45 @@ const register = catchAsync(async (req, res) => {
     },
     req.headers
   );
+  const { accessToken, refreshToken, token } = result.data;
 
-  if (payload.setCookies.length > 0) {
-    res.setHeader("Set-Cookie", payload.setCookies);
+
+  tokenUtils.setAccessTokenCookie(res, accessToken);
+  tokenUtils.setRefreshTokenCookie(res, refreshToken);
+  if (typeof token === "string" && token.length > 0) {
+    tokenUtils.setBetterAuthSessionCookie(res, token);
   }
+  res.clearCookie("better-auth.session_data", { path: "/" });
 
- sendResponse(res, {
+  sendResponse(res, {
     httpStatus: status.CREATED,
     success: true,
     message: "Student registered successfully",
-    data: payload.data,
-});
+    data: result.data,
+  });
 });
 
 const LoginUser = catchAsync(async (req, res) => {
-  const { email, password } = req.body;
-  const data = await authService.LoginUser({ email, password });
+  const payload = req.body;
+  const result = await authService.LoginUser(payload);
+  const { accessToken, refreshToken, token, ...rest } = result;
+
+  tokenUtils.setAccessTokenCookie(res, accessToken);
+  tokenUtils.setRefreshTokenCookie(res, refreshToken);
+  tokenUtils.setBetterAuthSessionCookie(res, token);
+  res.clearCookie("better-auth.session_data", { path: "/" });
 
   sendResponse(res, {
     httpStatus: status.OK,
     success: true,
     message: "User logged in successfully",
-    data,
-});
+    data: {
+      token,
+      accessToken,
+      refreshToken,
+      ...rest,
+    },
+  });
 });
 
 const updateStudent = catchAsync(async (req, res) => {
@@ -62,6 +78,6 @@ const updateStudent = catchAsync(async (req, res) => {
 
 export const AuthController = {
   register,
-    LoginUser,
-    updateStudent,
+  LoginUser,
+  updateStudent,
 };

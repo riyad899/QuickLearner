@@ -4,14 +4,14 @@ import { env } from "node:process";
 import z from "zod";
 import { IError, IErrorResponse } from "../app/interfaces/globalError.interface";
 import { handleZodErrors } from "../app/errorHelpers/handleZodErrors";
-import { error } from "node:console";
+import AppError from "../app/errorHelpers/appError";
 
 
 export const globalErrorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
   if (env.NODE_ENV === "development") {
     console.error("Error:", err);
   }
-  const errorSource: IError[] = []
+  let errorSource: IError[] = []
   let statusCode: number = status.INTERNAL_SERVER_ERROR;
   let message: string = "Internal Server Error";
   let stack: string | undefined = undefined;
@@ -23,7 +23,17 @@ export const globalErrorHandler = (err: any, req: Request, res: Response, next: 
     if (zodErrorResponse.errorSource) {
       errorSource.push(...zodErrorResponse.errorSource);
     }
-  }else if(err instanceof Error){
+  } else if (err instanceof AppError) {
+    statusCode = err.statusCode || status.INTERNAL_SERVER_ERROR;
+    message = err.message || "Internal Server Error";
+    stack = err.stack;
+    errorSource = [
+      {
+        path: "app",
+        message: err.message || "Error",
+      },
+    ];
+  } else if (err instanceof Error) {
     statusCode = status.BAD_REQUEST;
     message = err.message || "Bad Request";
     stack = err.stack;
