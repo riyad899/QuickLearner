@@ -1,7 +1,11 @@
 import dotenv from "dotenv";
 import AppError from "../app/errorHelpers/appError";
 import status from "http-status";
-
+// EMAIL_SENDER_SMTP_USER=raditkhanyt@gmail.com
+// EMAIL_SENDER_SMTP_PASS=kfjy nthr wyvy mltp
+// EMAIL_SENDER_SMTP_HOST=smtp.gmail.com
+// EMAIL_SENDER_SMTP_PORT=465
+// EMAIL_SENDER_SMTP_FROM=raditkhanyt@gmail.com
 dotenv.config();
 interface EnvConfig {
     NODE_ENV: string;
@@ -16,6 +20,13 @@ interface EnvConfig {
     FRONTEND_URL: string;
     BETTER_AUTH_SESSION_EXPIRES_IN: string;
     BETTER_AUTH_SEASSION_UPDATE_AGE: string;
+    EMAIL_SENDER:{
+        SMTP_USER: string;
+        SMTP_PASS: string;
+        SMTP_HOST: string;
+        SMTP_PORT: string;
+        SMTP_FROM: string;
+    }
 }
 
 const LoadEnvVarialbes = (): EnvConfig => {
@@ -32,6 +43,11 @@ const LoadEnvVarialbes = (): EnvConfig => {
         "FRONTEND_URL",
         "BETTER_AUTH_SESSION_EXPIRES_IN",
         "BETTER_AUTH_SEASSION_UPDATE_AGE",
+        "EMAIL_SENDER_SMTP_USER",
+        "EMAIL_SENDER_SMTP_PASS",
+        "EMAIL_SENDER_SMTP_HOST",
+        "EMAIL_SENDER_SMTP_PORT",
+        "EMAIL_SENDER_SMTP_FROM"
     ];
     requiredEnvVars.forEach((varName) => {
         if (!process.env[varName]) {
@@ -52,7 +68,14 @@ const LoadEnvVarialbes = (): EnvConfig => {
        FRONTEND_URL: process.env.FRONTEND_URL as string,
          BETTER_AUTH_SESSION_EXPIRES_IN: process.env.BETTER_AUTH_SESSION_EXPIRES_IN as string,
             BETTER_AUTH_SEASSION_UPDATE_AGE: process.env.BETTER_AUTH_SEASSION_UPDATE_AGE as string,
-    };
+              EMAIL_SENDER: {
+            SMTP_USER: process.env.EMAIL_SENDER_SMTP_USER as string,
+            SMTP_PASS: process.env.EMAIL_SENDER_SMTP_PASS as string,
+            SMTP_HOST: process.env.EMAIL_SENDER_SMTP_HOST as string,
+            SMTP_PORT: process.env.EMAIL_SENDER_SMTP_PORT as string,
+            SMTP_FROM: process.env.EMAIL_SENDER_SMTP_FROM as string,
+        },
+    }
 }
 
 

@@ -77,7 +77,18 @@ const getMe = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const verifyEmail = catchAsync(
+    async (req: Request, res: Response) => {
+        const { email, otp } = req.body;
+        await authService.verifyEmail(email, otp);
 
+        sendResponse(res, {
+            httpStatus: status.OK,
+            success: true,
+            message: "Email verified successfully",
+        });
+    }
+)
 const updateStudent = catchAsync(async (req, res) => {
   const id = Number(req.params.id);
 
@@ -183,4 +194,5 @@ export const AuthController = {
   getNewToken,
   changePassword,
   logoutUser,
+  verifyEmail,
 };
