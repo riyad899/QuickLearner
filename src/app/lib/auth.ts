@@ -8,6 +8,8 @@ import { sendEmail } from "../utils/email.js";
 
 
 export const auth = betterAuth({
+   baseURL: envVars.BETTER_AUTH_URL,
+   secret: envVars.BETTER_AUTH_SECRET,
     database: prismaAdapter(prisma, {
         provider: "postgresql",
     }),
@@ -15,11 +17,29 @@ export const auth = betterAuth({
         enabled: true,
         requireEmailVerification:true,
     },
+      socialProviders:{
+        google:{
+            clientId: envVars.Google_Client_ID,
+            clientSecret: envVars.Google_Client_Secret,
+            // callbackUrl: envVars.GOOGLE_CALLBACK_URL,
+            mapProfileToUser: ()=>{
+                return {
+                    role : Role.STUDENT,
+                    status : userStatus.ACTIVE,
+                    needPasswordChange : false,
+                    emailVerified : true,
+                    isDeleted : false,
+                    deletedAt : null,
+                }
+            }
+        }
+    },
        emailVerification:{
         sendOnSignUp: true,
         sendOnSignIn: true,
         autoSignInAfterVerification: true,
     },
+
 
     user: {
       additionalFields: {
@@ -107,6 +127,7 @@ export const auth = betterAuth({
             otpLength : 6,
         })
     ],
+
        session: {
         expiresIn: 60 * 60 * 60 * 24, // 1 day in seconds
         updateAge: 60 * 60 * 60 * 24, // 1 day in seconds
@@ -115,5 +136,30 @@ export const auth = betterAuth({
             maxAge: 60 * 60 * 60 * 24, // 1 day in seconds
         }
     },
-
+    // redirectURLs:{
+    //     signIn : `${envVars.BETTER_AUTH_URL}/api/v1/auth/google/success`,
+    // },
+        // trustedOrigins: [process.env.BETTER_AUTH_URL || "http://localhost:5000", envVars.FRONTEND_URL],
+    advanced: {
+        // disableCSRFCheck: true,
+        useSecureCookies : false,
+        cookies:{
+            state:{
+                attributes:{
+                    sameSite: "none",
+                    secure: true,
+                    httpOnly: true,
+                    path: "/",
+                }
+            },
+            sessionToken:{
+                attributes:{
+                    sameSite: "none",
+                    secure: true,
+                    httpOnly: true,
+                    path: "/",
+                }
+            }
+        }
+    }
 });

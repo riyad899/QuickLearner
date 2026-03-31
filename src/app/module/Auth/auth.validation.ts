@@ -39,3 +39,25 @@ export const updateStudentZodSchema = z
   .refine((value) => Object.keys(value).length > 0, {
     message: "At least one student field is required for update",
   });
+
+export const verifyEmailZodSchema = z.object({
+  email: z.string({ error: "Email is required" }).email("Invalid email format"),
+  otp: z.string({ error: "OTP is required" }).min(4, "OTP is invalid"),
+});
+
+export const forgetPasswordZodSchema = z.object({
+  email: z.string({ error: "Email is required" }).email("Invalid email format"),
+});
+
+export const resetPasswordZodSchema = z.object({
+  email: z.string({ error: "Email is required" }).email("Invalid email format"),
+  otp: z.string({ error: "OTP is required" }).min(4, "OTP is invalid"),
+  newPassword: z
+    .string({ error: "New password is required" })
+    .min(8, "Password must be at least 8 characters long")
+    .max(100, "Password must be less than 100 characters long")
+    .regex(
+      strongPasswordRegex,
+      "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+    ),
+});

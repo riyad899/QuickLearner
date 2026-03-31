@@ -1,11 +1,7 @@
 import dotenv from "dotenv";
 import AppError from "../app/errorHelpers/appError";
 import status from "http-status";
-// EMAIL_SENDER_SMTP_USER=raditkhanyt@gmail.com
-// EMAIL_SENDER_SMTP_PASS=kfjy nthr wyvy mltp
-// EMAIL_SENDER_SMTP_HOST=smtp.gmail.com
-// EMAIL_SENDER_SMTP_PORT=465
-// EMAIL_SENDER_SMTP_FROM=raditkhanyt@gmail.com
+
 dotenv.config();
 interface EnvConfig {
     NODE_ENV: string;
@@ -20,13 +16,16 @@ interface EnvConfig {
     FRONTEND_URL: string;
     BETTER_AUTH_SESSION_EXPIRES_IN: string;
     BETTER_AUTH_SEASSION_UPDATE_AGE: string;
-    EMAIL_SENDER:{
+    EMAIL_SENDER: {
         SMTP_USER: string;
         SMTP_PASS: string;
         SMTP_HOST: string;
         SMTP_PORT: string;
         SMTP_FROM: string;
     }
+    Google_Client_ID: string;
+    Google_Client_Secret: string;
+    Google_callbackURL: string;
 }
 
 const LoadEnvVarialbes = (): EnvConfig => {
@@ -47,7 +46,10 @@ const LoadEnvVarialbes = (): EnvConfig => {
         "EMAIL_SENDER_SMTP_PASS",
         "EMAIL_SENDER_SMTP_HOST",
         "EMAIL_SENDER_SMTP_PORT",
-        "EMAIL_SENDER_SMTP_FROM"
+        "EMAIL_SENDER_SMTP_FROM",
+        "Google_Client_ID",
+        "Google_Client_Secret",
+        "Google_callbackURL",
     ];
     requiredEnvVars.forEach((varName) => {
         if (!process.env[varName]) {
@@ -56,7 +58,7 @@ const LoadEnvVarialbes = (): EnvConfig => {
     });
 
     return {
-        NODE_ENV: process.env.NODE_ENV  as string,
+        NODE_ENV: process.env.NODE_ENV as string,
         PORT: process.env.PORT as string,
         DATABASE_URL: process.env.DATABASE_URL as string,
         BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET as string,
@@ -65,16 +67,19 @@ const LoadEnvVarialbes = (): EnvConfig => {
         REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET as string,
         ACCESS_TOKEN_EXPIRES_IN: process.env.ACCESS_TOKEN_EXPIRES_IN as string,
         REFRESH_TOKEN_EXPIRES_IN: process.env.REFRESH_TOKEN_EXPIRES_IN as string,
-       FRONTEND_URL: process.env.FRONTEND_URL as string,
-         BETTER_AUTH_SESSION_EXPIRES_IN: process.env.BETTER_AUTH_SESSION_EXPIRES_IN as string,
-            BETTER_AUTH_SEASSION_UPDATE_AGE: process.env.BETTER_AUTH_SEASSION_UPDATE_AGE as string,
-              EMAIL_SENDER: {
+        FRONTEND_URL: process.env.FRONTEND_URL as string,
+        BETTER_AUTH_SESSION_EXPIRES_IN: process.env.BETTER_AUTH_SESSION_EXPIRES_IN as string,
+        BETTER_AUTH_SEASSION_UPDATE_AGE: process.env.BETTER_AUTH_SEASSION_UPDATE_AGE as string,
+        EMAIL_SENDER: {
             SMTP_USER: process.env.EMAIL_SENDER_SMTP_USER as string,
             SMTP_PASS: process.env.EMAIL_SENDER_SMTP_PASS as string,
             SMTP_HOST: process.env.EMAIL_SENDER_SMTP_HOST as string,
             SMTP_PORT: process.env.EMAIL_SENDER_SMTP_PORT as string,
             SMTP_FROM: process.env.EMAIL_SENDER_SMTP_FROM as string,
         },
+        Google_Client_ID: process.env.Google_Client_ID as string,
+        Google_Client_Secret: process.env.Google_Client_Secret as string,
+        Google_callbackURL: process.env.Google_callbackURL as string,
     }
 }
 
