@@ -120,6 +120,38 @@ interface IUpdateStudentPayload {
   contact?: string;
 }
 
+const ensureNotGoogleUserByUserId = async (userId: string) => {
+  const googleAccount = await prisma.account.findFirst({
+    where: {
+      userId,
+      providerId: "google",
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (googleAccount) {
+    throw new AppError(
+      "Google login users cannot use this route.",
+      status.FORBIDDEN
+    );
+  }
+};
+
+const ensureNotGoogleUserByEmail = async (email: string) => {
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true },
+  });
+
+  if (!user) {
+    return;
+  }
+
+  await ensureNotGoogleUserByUserId(user.id);
+};
+
 
     const LoginUser = async (payload :ILoginUserPayload)=>{
       const { email, password } = payload;
@@ -248,6 +280,8 @@ const changePassword = async (payload: IchanegPasswordPayload, sessionToken: str
     if (!session) {
       throw new AppError("Invalid session token", status.UNAUTHORIZED);
     }
+
+    await ensureNotGoogleUserByUserId(session.user.id);
 
     const { currentPassword, newPassword } = payload;
 
@@ -394,6 +428,8 @@ const logoutUser = async (sessionToken : string) => {
 }
 const verifyEmail = async (email : string, otp : string) => {
 
+  await ensureNotGoogleUserByEmail(email);
+
     const result = await auth.api.verifyEmailOTP({
         body:{
             email,
@@ -416,6 +452,8 @@ const forgetPassword = async (email : string) => {
   if (!email || !email.trim()) {
     throw new AppError("Email is required", status.BAD_REQUEST);
   }
+
+  await ensureNotGoogleUserByEmail(email);
 
     const isUserExist = await prisma.user.findUnique({
         where : {
@@ -453,6 +491,8 @@ const resetPassword = async (email : string, otp : string, newPassword : string)
   if (!newPassword || !newPassword.trim()) {
     throw new AppError("New password is required", status.BAD_REQUEST);
   }
+
+  await ensureNotGoogleUserByEmail(email);
 
     const isUserExist = await prisma.user.findUnique({
         where: {
