@@ -1,4 +1,4 @@
-import { Role } from "../../generated/prisma-client/enums";
+import type { Role } from "@prisma/client";
 
 
 export interface IRequestUser{

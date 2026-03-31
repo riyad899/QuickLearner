@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { Role } from "../../../generated/prisma-client/enums";
+import { Role } from "@prisma/client";
 import { checkAuth } from "../../../middleware/checkAuth.js";
 import { validateZodSchema } from "../../../middleware/validateReq.js";
 import { AdminController } from "./admin.controller.js";

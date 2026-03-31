@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { SpacialityController } from "./spaciality.controller.js";
 import { checkAuth } from "../../../middleware/checkAuth.js";
-import { Role } from "../../../generated/prisma-client/enums";
+import { Role } from "@prisma/client";
 
 
 const router = Router();
