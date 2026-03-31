@@ -13,7 +13,7 @@ model Student {
     //relations
     userID  String @unique
     user    User     @relation(fields: [userID], references: [id] , onDelete: Cascade , onUpdate: Cascade)
-    courses Course[]
+    studentEnrollments StudentEnroll[]
 
     @@index([email], name: "idx_student_email")
     @@index([isDeleted], name: "idx_student_isDeleted")

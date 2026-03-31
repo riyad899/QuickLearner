@@ -1,7 +1,7 @@
-import { SpacialityService } from './spaciality.service';
+import { SpacialityService } from './spaciality.service.js';
 import { Request, Response, NextFunction, RequestHandler } from "express";
-import catchAsync from '../../shared/catchAsync';
-import { sendResponse } from '../../shared/sendResponse';
+import catchAsync from '../../shared/catchAsync.js';
+import { sendResponse } from '../../shared/sendResponse.js';
 
 
 

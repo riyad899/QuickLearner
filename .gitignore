@@ -10,3 +10,5 @@ coverage
 *.tsbuildinfo
 /generated/prisma
 /src/generated
+.vercel
+.env*.local
