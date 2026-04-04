@@ -1,0 +1,25 @@
+model Quiz {
+  id        String     @id @default(uuid())
+  title     String
+  courseId  Int
+  course    Course     @relation(fields: [courseId], references: [id])
+  moduleID  Int        @unique
+  module    module     @relation(fields: [moduleID], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  questions Question[]
+}
+
+model Question {
+  id        String    @id @default(uuid())
+  text      String
+  quizId    String
+  quiz      Quiz      @relation(fields: [quizId], references: [id])
+  options   Option[]
+  correctId String
+}
+
+model Option {
+  id         String   @id @default(uuid())
+  text       String
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id])
+}

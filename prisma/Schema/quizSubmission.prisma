@@ -1,0 +1,17 @@
+model QuizSubmission {
+  id        String   @id @default(uuid())
+  quizId    String
+  studentId String
+  score     Float
+
+  answers   Answer[]
+}
+
+model Answer {
+  id               String @id @default(uuid())
+  questionId       String
+  selectedOptionId String
+  submissionId     String
+
+  submission       QuizSubmission @relation(fields: [submissionId], references: [id])
+}

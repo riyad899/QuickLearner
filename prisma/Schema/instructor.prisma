@@ -4,7 +4,6 @@ model Instructor {
         email             String     @unique
         phone             String     @unique
         profilePhoto      String?
-        contactNumber     String?
         isDeleted         Boolean    @default(false)
         deletedAt         DateTime?
         regitretionNumber String     @unique
@@ -15,11 +14,13 @@ model Instructor {
         instuctorFee      Float?
         createdAt         DateTime   @default(now())
         updatedAt         DateTime   @updatedAt
+        ratingCount       Int        @default(0)
 
 
         specialityId      String
         speciality        Speciality @relation(fields: [specialityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
         courses           Course[]
+        instructorAssignments InstructorAssign[]
         userID            String     @unique
         user              User       @relation(fields: [userID], references: [id], onDelete: Cascade, onUpdate: Cascade)
        specialities      InstructorSpeciality[]

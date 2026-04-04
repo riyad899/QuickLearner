@@ -14,11 +14,44 @@ model Course {
 
   instructorID Int
   instructor   Instructor @relation(fields: [instructorID], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  students     Student[]
+  batch        batch?
+  quizzes      Quiz[]
+  milestones   milestone[]
+  studentEnrollments StudentEnroll[]
+  instructorAssignments InstructorAssign[]
 
   @@index([title], name: "idx_course_title")
   @@index([instructorID], name: "idx_course_instructor")
   @@index([status], name: "idx_course_status")
   @@index([isDeleted], name: "idx_course_isDeleted")
   @@map("courses")
+}
+
+model StudentEnroll {
+  id        Int      @id @default(autoincrement())
+  studentID Int
+  courseID  Int
+  enrolledAt DateTime @default(now())
+
+  student   Student  @relation(fields: [studentID], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  course    Course   @relation(fields: [courseID], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([studentID, courseID], name: "uq_student_enroll")
+  @@index([studentID], name: "idx_student_enroll_student")
+  @@index([courseID], name: "idx_student_enroll_course")
+  @@map("student_enrollments")
+}
+
+model InstructorAssign {
+  id           Int        @id @default(autoincrement())
+  courseID     Int
+  instructorID Int
+  assignedAt   DateTime   @default(now())
+
+  course       Course     @relation(fields: [courseID], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  instructor   Instructor @relation(fields: [instructorID], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([courseID], name: "idx_instructor_assign_course")
+  @@index([instructorID], name: "idx_instructor_assign_instructor")
+  @@map("instructor_assignments")
 }
