@@ -9,7 +9,17 @@ model Assignment {
 	deletedAt   DateTime?
 	createdAt   DateTime @default(now())
 	updatedAt   DateTime @updatedAt
-
+    submissions Submission[]
 	@@index([isDeleted], name: "idx_assignment_isDeleted")
 	@@map("assignments")
+}
+model Submission {
+  id           String     @id @default(uuid())
+  studentId    String
+	assignmentId Int
+  fileUrl      String
+  submittedAt  DateTime   @default(now())
+  marks        Float?
+
+  assignment   Assignment @relation(fields: [assignmentId], references: [id])
 }
